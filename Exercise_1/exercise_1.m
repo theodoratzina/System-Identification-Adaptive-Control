@@ -1,9 +1,11 @@
-%%  Simulation and Modelling of Dynamic Systems
-%  Lab 01 - Exercise 1
+%% Simulation and Modelling of Dynamic Systems
+% Lab 01 - Exercise 1
 
 clear; clc; close all;
 
 %% System Parameters
+fprintf('===== Exercise 1 =====\n\n');
+
 % Values chosen within the required ranges:
 % m in [0.75, 1], k in [10, 15], c in [0.15, 0.35]
 m = 0.9;    % mass [kg]
@@ -71,15 +73,15 @@ figure('Name', 'Exercise 1 — System Response', ...
 % Position x(t)
 subplot(3, 1, 1);
 plot(t, x1, 'b', 'LineWidth', 1.5);
-xlabel('Time t [s]', 'Interpreter', 'latex');
-ylabel('x(t) [m]', 'Interpreter', 'latex');
-title('State 1: Position x(t)', 'Interpreter', 'latex');;
+xlabel('Time $t$ [s]', 'Interpreter', 'latex');
+ylabel('$x(t)$ [m]', 'Interpreter', 'latex');
+title('State 1: Position $x(t)$', 'Interpreter', 'latex');
 grid on;
 
 % Velocity x_dot(t)
 subplot(3, 1, 2);
 plot(t, x2, 'r', 'LineWidth', 1.5);
-xlabel('Time t [s]', 'Interpreter', 'latex');
+xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$\dot{x}(t)$ [m/s]', 'Interpreter', 'latex');
 title('State 2: Velocity $\dot{x}(t)$', 'Interpreter', 'latex');
 grid on;
@@ -87,22 +89,24 @@ grid on;
 % Input u(t)
 subplot(3, 1, 3);
 plot(t, u_out,'g', 'LineWidth', 1.5);
-xlabel('Time t [s]', 'Interpreter', 'latex');
-ylabel('u(t) [N]', 'Interpreter', 'latex');
+xlabel('Time $t$ [s]', 'Interpreter', 'latex');
+ylabel('$u(t)$ [N]', 'Interpreter', 'latex');
 title('Input $u(t) = 5sin(2.5t)$', 'Interpreter', 'latex');
 grid on;
 
 sgtitle('Exercise 1: System Response', ...
-        'FontSize', 13, 'FontWeight', 'bold');
+        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Plot: Phase Portrait
 figure('Name', 'Phase Portrait', 'NumberTitle', 'off', ...
        'Position', [100, 100, 600, 500]);
 
+
 plot(x1, x2, 'm', 'LineWidth', 1.2);
 xlabel('$x(t)$ [m]', 'Interpreter', 'latex');
 ylabel('$\dot{x}(t)$ [m/s]', 'Interpreter', 'latex');
-title('Phase Portrait: Velocity vs Position');
+title('Phase Portrait: Velocity vs Position', ...
+       'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 grid on;
 
 %% Summary Statistics

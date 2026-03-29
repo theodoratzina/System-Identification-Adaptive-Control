@@ -1,7 +1,5 @@
-%% =========================================================
-%  Simulation and Modelling of Dynamic Systems
-%  Lab 01 - Exercise 2
-%% =========================================================
+%% Simulation and Modelling of Dynamic Systems
+% Lab 01 - Exercise 2
 
 clear; clc; close all;
 
@@ -12,15 +10,14 @@ load('simulation_data.mat');
 fprintf('===== Data loaded from simulation_data.mat =====\n');
 fprintf('True parameters: m=%.4f, k=%.4f, c=%.4f\n\n', m, k, c);
 
-%% =========================================================
-%  Exercise 2a — Least Squares Estimation (Ts = 0.05 s)
-%% =========================================================
+%%  Exercise 2a — Least Squares Estimation (Ts = 0.05 s)
 fprintf('===== Exercise 2a =====\n');
 Ts = 0.05;  % sampling period [s]
  
 % Sample the simulation data at every Ts seconds
 step = round(Ts / dt);
 idx  = 1 : step : length(t);
+t_samp = t(idx);
 x1_samp = x1(idx);
 x2_samp = x2(idx);
 u_samp  = u_out(idx);
@@ -50,23 +47,23 @@ figure('Name', 'Exercise 2a — Least Squares Estimation', ...
 subplot(2, 1, 1);
 plot(t, x1, 'b', 'LineWidth', 1.5); hold on;
 plot(t_hat, x1_hat, 'r--', 'LineWidth', 1.5);
-xlabel('Time t [s]'); ylabel('Position [m]');
-title('Position: x(t) vs $\hat{x}(t)$', 'Interpreter', 'latex');
+xlabel('Time $t$ [s]', 'Interpreter', 'latex'); 
+ylabel('Position [m]', 'Interpreter', 'latex');
+title('Position: $x(t)$ vs $\hat{x}(t)$', 'Interpreter', 'latex');
 legend('$x(t)$ — true', '$\hat{x}(t)$ — estimated', 'Interpreter', 'latex', 'Location', 'best');
 grid on;
  
 subplot(2, 1, 2);
 plot(t, e_x, 'y', 'LineWidth', 1.5);
-xlabel('Time t [s]'); ylabel('e_x(t) [m]');
+xlabel('Time $t$ [s]', 'Interpreter', 'latex'); 
+ylabel('$e_x(t)$ [m]', 'Interpreter', 'latex');
 title('Position Error: $e_x(t) = x(t) - \hat{x}(t)$', 'Interpreter', 'latex');
 grid on;
  
-sgtitle('Exercise 2a: Least Squares Estimation with T_s = 0.05 s', ...
-        'FontSize', 13, 'FontWeight', 'bold');
+sgtitle('Exercise 2a: Least Squares Estimation with $T_s = 0.05$ s', ...
+        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
  
-%% =========================================================
-%  Exercise 2b — Effect of Sampling Period Ts on Accuracy
-%% =========================================================
+%%  Exercise 2b — Effect of Sampling Period Ts on Accuracy
 fprintf('===== Exercise 2b =====\n');
  
 Ts_values = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0];
@@ -109,121 +106,106 @@ figure('Name', 'Exercise 2b — Effect of Ts', ...
  
 subplot(3, 1, 1);
 semilogx(Ts_values, error_m, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Sampling period T_s [s]'); ylabel('$|m - \hat{m}|$', 'Interpreter', 'latex');
-title('Estimation error: mass m'); grid on;
+xlabel('Sampling period $T_s$ [s]', 'Interpreter', 'latex'); 
+ylabel('$|m - \hat{m}|$', 'Interpreter', 'latex');
+title('Estimation error: mass $m$', 'Interpreter', 'latex');
+grid on;
  
 subplot(3, 1, 2);
 semilogx(Ts_values, error_c, 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Sampling period T_s [s]'); ylabel('$|c - \hat{c}|$', 'Interpreter', 'latex');
-title('Estimation error: damping c'); grid on;
+xlabel('Sampling period $T_s$ [s]', 'Interpreter', 'latex'); 
+ylabel('$|c - \hat{c}|$', 'Interpreter', 'latex');
+title('Estimation error: damping $c$', 'Interpreter', 'latex');
+grid on;
  
 subplot(3, 1, 3);
 semilogx(Ts_values, error_k, 'go-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Sampling period T_s [s]'); ylabel('$|k - \hat{k}|$', 'Interpreter', 'latex');
-title('Estimation error: spring constant k'); grid on;
+xlabel('Sampling period $T_s$ [s]', 'Interpreter', 'latex'); 
+ylabel('$|k - \hat{k}|$', 'Interpreter', 'latex');
+title('Estimation error: spring constant $k$', 'Interpreter', 'latex'); 
+grid on;
  
-sgtitle('Exercise 2b: Least Squares Estimation Error vs Sampling Period T_s', ...
-        'FontSize', 13, 'FontWeight', 'bold');
+sgtitle('Exercise 2b: Least Squares Estimation Error vs Sampling Period $T_s$', ...
+        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
  
-%% =========================================================
-%  Exercise 2c — Effect of Gaussian Noise on Estimation
-%% =========================================================
+%%  Exercise 2c — Effect of Gaussian Noise on Estimation
+% Reuses t_samp, x1_samp, x2_samp, u_samp, x2_dot from 2a (same Ts = 0.05 s)
+% Input u(t) is known analytically — no noise added
 fprintf('===== Exercise 2c =====\n');
  
-Ts = 0.05;
-step = round(Ts / dt);
-idx = 1 : step : length(t);
-t_samp  = t(idx);
-x1_samp = x1(idx);
-x2_samp = x2(idx);
-u_samp  = u_out(idx);
-N = length(x1_samp);
+% Noise levels as percentage of signal standard deviation
+noise_values = [0.001, 0.005, 0.01, 0.05, 0.1];  % 0.1% to 10%
+sigma_x = noise_values * std(x1_samp);
+sigma_v = noise_values * std(x2_samp);
  
-noise_levels = [0.001, 0.005, 0.01, 0.05];
+error_m_noisy = zeros(size(noise_values));
+error_c_noisy = zeros(size(noise_values));
+error_k_noisy = zeros(size(noise_values));
  
-% --- Clean estimate (no noise, reference) ---
-x2_dot_clean = gradient(x2_samp, Ts);
- 
-[m_clean, c_clean, k_clean] = least_squares(x1_samp, x2_samp, x2_dot_clean, u_samp);
-fprintf('No noise → m=%.4f, c=%.4f, k=%.4f\n', m_clean, c_clean, k_clean);
- 
-% --- Estimates with noise ---
 rng(42);
+fprintf('True values: m=%.4f, c=%.4f, k=%.4f\n', m, c, k);
+fprintf('No noise   : m=%.4f, c=%.4f, k=%.4f\n\n', m_hat, c_hat, k_hat);
  
-err_m_n = zeros(size(noise_levels));
-err_c_n = zeros(size(noise_levels));
-err_k_n = zeros(size(noise_levels));
+for i = 1 : length(noise_values)
  
-for i = 1 : length(noise_levels)
-    sigma = noise_levels(i);
+    % Add white Gaussian noise to position and velocity
+    x1_noisy = x1_samp + sigma_x(i) * randn(size(x1_samp));
+    x2_noisy = x2_samp + sigma_v(i) * randn(size(x2_samp));
  
-    x1_noisy = x1_samp + sigma * randn(N, 1);
-    x2_noisy = x2_samp + sigma * randn(N, 1);
-    u_noisy  = u_samp  + sigma * randn(N, 1);
+    % Estimate acceleration from noisy velocity
+    x2_dot_noisy = gradient(x2_noisy, Ts);
  
-    x2_dot_n = gradient(x2_noisy, Ts);
+    % Least squares on noisy data
+    [m_noisy, c_noisy, k_noisy] = least_squares(x1_noisy, x2_noisy, x2_dot_noisy, u_samp);
  
-    [m_n, c_n, k_n] = least_squares(x1_noisy, x2_noisy, x2_dot_n, u_noisy);
+    error_m_noisy(i) = abs(m - m_noisy);
+    error_c_noisy(i) = abs(c - c_noisy);
+    error_k_noisy(i) = abs(k - k_noisy);
  
-    err_m_n(i) = abs(m - m_n);
-    err_c_n(i) = abs(c - c_n);
-    err_k_n(i) = abs(k - k_n);
- 
-    fprintf('sigma = %.3f → m=%.4f (err=%.4f), c=%.4f (err=%.4f), k=%.4f (err=%.4f)\n', ...
-            sigma, m_n, err_m_n(i), c_n, err_c_n(i), k_n, err_k_n(i));
+    fprintf('Noise=%.1f%%  ->  m=%.4f (e=%.5f), c=%.4f (e=%.5f), k=%.4f (e=%.5f)\n', ...
+            noise_values(i)*100, m_noisy, error_m_noisy(i), c_noisy, error_c_noisy(i), k_noisy, error_k_noisy(i));
 end
  
 fprintf('\n');
  
-% --- Plot: Parameter errors vs noise level ---
-figure('Name', 'Theme 2c — Effect of Noise', ...
+% Plot: parameter estimation errors vs noise level
+figure('Name', 'Exercise 2c — Effect of Noise', ...
        'NumberTitle', 'off', 'Position', [100, 100, 900, 600]);
  
 subplot(3, 1, 1);
-semilogx(noise_levels, err_m_n, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Noise std \sigma'); ylabel('$|m - \hat{m}|$', 'Interpreter', 'latex');
-title('Estimation error: mass m'); grid on;
- 
-subplot(3, 1, 2);
-semilogx(noise_levels, err_c_n, 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Noise std \sigma'); ylabel('$|c - \hat{c}|$', 'Interpreter', 'latex');
-title('Estimation error: damping c'); grid on;
- 
-subplot(3, 1, 3);
-semilogx(noise_levels, err_k_n, 'go-', 'LineWidth', 1.5, 'MarkerSize', 6);
-xlabel('Noise std \sigma'); ylabel('$|k - \hat{k}|$', 'Interpreter', 'latex');
-title('Estimation error: spring constant k'); grid on;
- 
-sgtitle('Theme 2c: LS Estimation Error vs Noise Level \sigma', ...
-        'FontSize', 13, 'FontWeight', 'bold');
- 
-% --- Plot: clean vs noisy signal comparison ---
-figure('Name', 'Theme 2c — Clean vs Noisy', ...
-       'NumberTitle', 'off', 'Position', [100, 100, 900, 400]);
- 
-sigma_demo    = noise_levels(end);
-x1_noisy_demo = x1_samp + sigma_demo * randn(N, 1);
- 
-plot(t_samp, x1_samp,          'b',  'LineWidth', 1.5); hold on;
-plot(t_samp, x1_noisy_demo, 'r.', 'MarkerSize', 4);
-xlabel('Time t [s]'); ylabel('x(t) [m]');
-title(sprintf('Clean vs Noisy position signal (\\sigma = %.3f)', sigma_demo));
-legend('Clean x(t)', 'Noisy x(t)', 'Location', 'best');
+semilogx(noise_values*100, error_m_noisy, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6);
+xlabel('Noise level [\% of signal std]', 'Interpreter', 'latex');
+ylabel('$|m - \hat{m}|$', 'Interpreter', 'latex');
+title('Estimation error: mass $m$', 'Interpreter', 'latex');
 grid on;
  
-%% --- Save Results ---
-if ~exist('output', 'dir')
-    mkdir('output');
-end
+subplot(3, 1, 2);
+semilogx(noise_values*100, error_c_noisy, 'ro-', 'LineWidth', 1.5, 'MarkerSize', 6);
+xlabel('Noise level [\% of signal std]', 'Interpreter', 'latex');
+ylabel('$|c - \hat{c}|$', 'Interpreter', 'latex');
+title('Estimation error: damping $c$', 'Interpreter', 'latex');
+grid on;
  
-saveas(figure(1), 'output/tema2a_estimation.png');
-saveas(figure(2), 'output/tema2b_sampling.png');
-saveas(figure(3), 'output/tema2c_noise.png');
-saveas(figure(4), 'output/tema2c_clean_vs_noisy.png');
+subplot(3, 1, 3);
+semilogx(noise_values*100, error_k_noisy, 'go-', 'LineWidth', 1.5, 'MarkerSize', 6);
+xlabel('Noise level [\% of signal std]', 'Interpreter', 'latex');
+ylabel('$|k - \hat{k}|$', 'Interpreter', 'latex');
+title('Estimation error: spring constant $k$', 'Interpreter', 'latex');
+grid on;
  
-save('output/tema2_data.mat', 'm_hat', 'c_hat', 'k_hat', ...
-     'Ts_values', 'error_m', 'error_c', 'error_k', ...
-     'noise_levels', 'err_m_n', 'err_c_n', 'err_k_n');
+sgtitle('Exercise 2c: Least Squares Estimation Error vs Noise Level', ...
+        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
  
-fprintf('Figures and data saved in /output folder.\n');
+% Plot: clean vs noisy signal (highest noise level)
+figure('Name', 'Exercise 2c — Clean vs Noisy', ...
+       'NumberTitle', 'off', 'Position', [100, 100, 900, 400]);
  
+x1_noisy_demo = x1_samp + sigma_x(end) * randn(size(x1_samp));
+plot(t_samp, x1_samp, 'b',  'LineWidth', 1.5); hold on;
+plot(t_samp, x1_noisy_demo, 'r.', 'MarkerSize', 8);
+xlabel('Time $t$ [s]', 'Interpreter', 'latex');
+ylabel('$x(t)$ [m]', 'Interpreter', 'latex');
+title(sprintf('Clean vs Noisy position (noise = %.0f\\%% of std)', ...
+    noise_values(end)*100), 'Interpreter', 'latex');
+legend('Clean $x(t)$', 'Noisy $x(t)$', 'Interpreter', 'latex', 'Location', 'best');
+grid on;
