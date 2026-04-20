@@ -61,7 +61,7 @@ for i = 1 : N - 1
     alpha_hat(i+1) = alpha_hat(i) + dt_i * gamma_alpha * s * sin(theta(i));
     c_hat(i+1) = c_hat(i) + dt_i * gamma_c * s * theta_dot(i);
 
-    % Parameter projection: enforce physical positivity (alpha > 0, c > 0)
+    % Parameter projection: enforce physical positivity constraints
     alpha_hat(i+1) = max(alpha_hat(i+1), 0.5);
     c_hat(i+1) = max(c_hat(i+1), 0.01);
 end

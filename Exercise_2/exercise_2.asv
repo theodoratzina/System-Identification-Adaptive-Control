@@ -18,7 +18,7 @@ fprintf('alpha = g/l = %.4f rad/s²\n\n', alpha);
 
 %% Simulation Settings
 dt = 1e-3;   % integration step [s]
-t_end = 40;  % simulation duration [s]
+t_end = 100;  % simulation duration [s]
 
 %% Estimator Settings
 gamma_alpha = 3.0;
@@ -183,7 +183,7 @@ end
 fprintf('\n');
 
 %% Exercise 2b — Plots
-% Plot 2b-1: Parameter Errors vs Noise Amplitude -----
+% Plot 2b-1: Parameter Errors vs Noise Amplitude
 figure('Name', 'Exercise 2b — Errors vs Noise Amplitude', ...
        'NumberTitle', 'off', 'Position', [80, 100, 900, 600]);
 
@@ -210,7 +210,7 @@ grid on;
 sgtitle('Exercise 2b: Lyapunov Method — Estimation Error vs Noise Amplitude $\eta_0$', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
-% ----- Plot 2b-2: Clean vs Noisy Measurements (highest noise level) -----
+% Plot 2b-2: Clean vs Noisy Measurements (highest noise level)
 eta0_demo  = n0_values(end);
 noise_demo = eta0_demo * sin(20 * pi * t);
 t_plot_idx = t <= 5;   % show first 5 seconds for clarity
@@ -242,7 +242,7 @@ grid on;
 sgtitle(sprintf('Exercise 2b: Clean vs Noisy Measurements ($\\eta_0 = %.2f$)', eta0_demo), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
-% ----- Plot 2b-3: Parameter Convergence — No noise vs Low vs High -----
+% Plot 2b-3: Parameter Convergence — No noise vs Low vs High
 eta0_low  = 0.01;
 eta0_high = 0.10;
 
@@ -295,7 +295,3 @@ fprintf('%s\n', repmat('-', 1, 38));
 for i = 1 : length(n0_values)
     fprintf('%-12.4f %-12.5f %-12.5f\n', n0_values(i), error_l(i), error_c(i));
 end
-fprintf('\nObservation: sinusoidal noise eta(t) = eta0*sin(20*pi*t) corrupts\n');
-fprintf('the Lyapunov signal s(t), introducing oscillatory bias in the update laws.\n');
-fprintf('Parameter estimation errors increase monotonically with noise amplitude.\n');
-fprintf('Higher-frequency noise is more damaging to the velocity-based update law.\n');

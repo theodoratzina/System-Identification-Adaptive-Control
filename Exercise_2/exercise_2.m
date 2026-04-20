@@ -18,7 +18,7 @@ fprintf('alpha = g/l = %.4f rad/s²\n\n', alpha);
 
 %% Simulation Settings
 dt = 1e-3;   % integration step [s]
-t_end = 40;  % simulation duration [s]
+t_end = 100;  % simulation duration [s]
 
 %% Estimator Settings
 gamma_alpha = 3.0;
