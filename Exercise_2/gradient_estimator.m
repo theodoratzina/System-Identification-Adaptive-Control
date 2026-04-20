@@ -1,0 +1,61 @@
+function [k_hat, b_hat] = gradient_estimator( ...
+    t, phi_dot, phi_ddot, u, J, gamma_k, gamma_b, k0, b0)
+%   Implements the Gradient Method for online estimation of k and b.
+%
+%   System equation:  J * phi_ddot(t) = -k * phi_dot(t) + b * u(t) + d(t)
+%
+%   Inputs:
+%     t        - time vector                   [N x 1]
+%     phi_dot  - measured angular velocity     [N x 1]
+%     phi_ddot - measured angular acceleration [N x 1]
+%     u        - control input                 [N x 1]
+%     J        - known moment of inertia
+%     gamma_k  - adaptation gain for k
+%     gamma_b  - adaptation gain for b
+%     k0       - initial estimate of k
+%     b0       - initial estimate of b
+%
+%   Outputs:
+%     k_hat - time history of k_hat(t) [N x 1]
+%     b_hat - time history of b_hat(t) [N x 1]
+%
+%   Actual Output:        y = J * phi_ddot
+%   Estimated Output: y_hat = -k_hat * phi_dot + b_hat * u
+%
+%   Equation Error: error_y = y - y_hat
+%                           = J * phi_ddot + k_hat * phi_dot - b_hat * u
+%
+%   Gradient Update Laws (Euler integration):
+%     d(k_hat)/dt = gamma_k * (-phi_dot) * error_y
+%     d(b_hat)/dt = gamma_b * u * error_y
+
+N = length(t);
+k_hat = zeros(N, 1);
+b_hat = zeros(N, 1);
+
+% Initialise
+k_hat(1) = k0;
+b_hat(1) = b0;
+
+for i = 1 : N - 1
+    dt_i = t(i+1) - t(i);
+
+    % Equation output: y = J * phi_ddot
+    y = J * phi_ddot(i);
+
+    % Predicted output from current parameter estimates
+    y_hat = -k_hat(i) * phi_dot(i) + b_hat(i) * u(i);
+
+    % Equation (prediction) error
+    error_y = y - y_hat;
+
+    % Gradient update
+    k_hat(i+1) = k_hat(i) + dt_i * gamma_k * (-phi_dot(i)) * error_y;
+    b_hat(i+1) = b_hat(i) + dt_i * gamma_b * u(i) * error_y;
+
+    % Parameter projection: enforce physical positivity constraints
+    k_hat(i+1) = max(k_hat(i+1), 1e-4);
+    b_hat(i+1) = max(b_hat(i+1), 1e-4);
+end
+
+end
