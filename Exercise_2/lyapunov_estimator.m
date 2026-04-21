@@ -1,5 +1,5 @@
 function [alpha_hat, c_hat, theta_hat, theta_dot_hat] = lyapunov_estimator( ...
-    t, theta, theta_dot, u_vec, gamma_alpha, gamma_c, alpha0, c0)
+    t, theta, theta_dot, u, gamma_alpha, gamma_c, alpha0, c0)
 %   Implements the Lyapunov-based method for online estimation of alpha = g/l and c.
 %
 %   System equation:  theta_ddot(t) = -alpha*sin(theta(t)) - c*theta_dot(t) + u(t)
@@ -51,17 +51,19 @@ for i = 1 : N - 1
     % Series-parallel model: theta_dot_hat dynamics
     % Uses measured true states theta, theta_dot (not estimated ones)
     theta_dot_hat_dot = -alpha_hat(i) * sin(theta(i)) ...
-                        - c_hat(i) * theta_dot(i) + u_vec(i);
+                        - c_hat(i) * theta_dot(i) + u(i) ...
+                        + 10 * s;  % stabilizing gain
 
     % Euler integration: advance parallel model states
     theta_dot_hat(i+1) = theta_dot_hat(i) + dt_i * theta_dot_hat_dot;
     theta_hat(i+1) = theta_hat(i) + dt_i * theta_dot_hat(i);
 
     % Lyapunov-based update laws (V_dot = 0)
-    alpha_hat(i+1) = alpha_hat(i) + dt_i * gamma_alpha * s * sin(theta(i));
-    c_hat(i+1) = c_hat(i) + dt_i * gamma_c * s * theta_dot(i);
+    alpha_hat(i+1) = alpha_hat(i) - dt_i * gamma_alpha * s * sin(theta(i));
+    c_hat(i+1) = c_hat(i) - dt_i * gamma_c * s * theta_dot(i);
 
-    % Parameter projection: enforce physical positivity constraints
+    % Parameter projection: enforce physical positivity constraints7
+
     alpha_hat(i+1) = max(alpha_hat(i+1), 0.5);
     c_hat(i+1) = max(c_hat(i+1), 0.01);
 end
