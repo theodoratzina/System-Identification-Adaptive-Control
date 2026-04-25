@@ -16,7 +16,7 @@ fprintf('b = %.4f       (unknown to estimator)\n\n', b);
 
 %% Simulation Settings
 dt = 1e-3;    % integration step [s]
-t_end = 100;  % simulation duration [s]
+t_end = 120;  % simulation duration [s]
 
 %% Estimator Settings
 fprintf('===== Gradient Method Estimation =====\n');

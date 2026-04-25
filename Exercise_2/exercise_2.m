@@ -18,7 +18,7 @@ fprintf('alpha = g/l = %.4f rad/s²\n\n', alpha);
 
 %% Simulation Settings
 dt = 1e-3;   % integration step [s]
-t_end = 100;  % simulation duration [s]
+t_end = 120;  % simulation duration [s]
 
 %% Estimator Settings
 gamma_alpha = 70.0;
@@ -185,20 +185,20 @@ fprintf('\n');
 
 %% Exercise 2b — Plots
 % Define noise levels for the time-domain study
-n0_low  = 0.01;
-n0_high = 0.05;
+n0_min = n0_values(2);
+n0_max = n0_values(end);
 
 % Run estimator for low noise
-n_low = n0_low * sin(20 * pi * t);
-[alpha_low, c_low, theta_hat_low, ~] = lyapunov_estimator( ...
-    t, theta + n_low, theta_dot + n_low, u + n_low, gamma_alpha, gamma_c, alpha0, c0);
-l_low = g ./ alpha_low;
+n_min = n0_min * sin(20 * pi * t);
+[alpha_min, c_min, theta_hat_min, ~] = lyapunov_estimator( ...
+    t, theta + n_min, theta_dot + n_min, u + n_min, gamma_alpha, gamma_c, alpha0, c0);
+l_min = g ./ alpha_min;
 
 % Run estimator for high noise
-n_high = n0_high * sin(20 * pi * t);
-[alpha_high, c_high, theta_hat_high, ~] = lyapunov_estimator( ...
-    t, theta + n_high, theta_dot + n_high, u + n_high, gamma_alpha, gamma_c, alpha0, c0);
-l_high = g ./ alpha_high;
+n_max = n0_max * sin(20 * pi * t);
+[alpha_max, c_max, theta_hat_max, ~] = lyapunov_estimator( ...
+    t, theta + n_max, theta_dot + n_max, u + n_max, gamma_alpha, gamma_c, alpha0, c0);
+l_max = g ./ alpha_max;
 
 % Plot 2b-1: Angle Tracking Error (Clean vs Low vs High)
 figure('Name', 'Exercise 2b - Angle Tracking Comparison', ...
@@ -206,24 +206,24 @@ figure('Name', 'Exercise 2b - Angle Tracking Comparison', ...
 
 subplot(2, 1, 1);
 plot(t, theta, 'g', 'LineWidth', 1.5); hold on;
-plot(t, theta_hat_low, 'b--', 'LineWidth', 1.5);
-plot(t, theta_hat_high, 'r:', 'LineWidth', 1.8);
+plot(t, theta_hat_min, 'b--', 'LineWidth', 1.5);
+plot(t, theta_hat_max, 'r:', 'LineWidth', 1.8);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$\hat{\theta}(t)$ [rad]', 'Interpreter', 'latex');
 title('Estimated Angle $\hat{\theta}(t)$ under Different Noise Levels', 'Interpreter', 'latex');
-legend('True $\theta(t)$', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_low), ...
-       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_high), 'Interpreter', 'latex', 'Location', 'best');
+legend('True $\theta(t)$', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_min), ...
+       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_max), 'Interpreter', 'latex', 'Location', 'best');
 grid on;
 
 subplot(2, 1, 2);
 plot(t, error_theta, 'g', 'LineWidth', 1.5); hold on;
-plot(t, theta - theta_hat_low, 'b--', 'LineWidth', 1.5);
-plot(t, theta - theta_hat_high, 'r:', 'LineWidth', 1.5);
+plot(t, theta - theta_hat_min, 'b--', 'LineWidth', 1.5);
+plot(t, theta - theta_hat_max, 'r:', 'LineWidth', 1.5);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$e_\theta(t)$ [rad]', 'Interpreter', 'latex');
 title('Angle Tracking Error $e_\theta(t)$ under Different Noise Levels', 'Interpreter', 'latex');
-legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_low), ...
-       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_high), 'Interpreter', 'latex', 'Location', 'best');
+legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_min), ...
+       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_max), 'Interpreter', 'latex', 'Location', 'best');
 grid on;
 
 sgtitle('Exercise 2b: Angle Tracking Robustness vs Measurement Noise', ...
@@ -235,27 +235,27 @@ figure('Name', 'Exercise 2b - Parameter Convergence Comparison', ...
 
 subplot(2, 1, 1);
 plot(t, l_hat, 'm', 'LineWidth', 1.5); hold on;
-plot(t, l_low, 'b--', 'LineWidth', 1.5);
-plot(t, l_high, 'r:', 'LineWidth', 1.8);
+plot(t, l_min, 'b--', 'LineWidth', 1.5);
+plot(t, l_max, 'r:', 'LineWidth', 1.8);
 yline(l, 'g-', 'LineWidth', 1.2);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$\hat{l}(t)$ [m]', 'Interpreter', 'latex');
 title('Pendulum Length Estimate $\hat{l}(t)$ for Different Noise Levels', 'Interpreter', 'latex');
-legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_low), ...
-       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_high), 'True $l$', ...
+legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_min), ...
+       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_max), 'True $l$', ...
        'Interpreter', 'latex', 'Location', 'best');
 grid on;
 
 subplot(2, 1, 2);
 plot(t, c_hat, 'm', 'LineWidth', 1.5); hold on;
-plot(t, c_low, 'b--', 'LineWidth', 1.5);
-plot(t, c_high, 'r:', 'LineWidth', 1.8);
+plot(t, c_min, 'b--', 'LineWidth', 1.5);
+plot(t, c_max, 'r:', 'LineWidth', 1.8);
 yline(c, 'g-', 'LineWidth', 1.2);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$\hat{c}(t)$', 'Interpreter', 'latex');
 title('Damping Estimate $\hat{c}(t)$ for Different Noise Levels', 'Interpreter', 'latex');
-legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_low), ...
-       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_high), 'True $c$', ...
+legend('Clean ($\eta_0 = 0$)', sprintf('Low Noise ($\\eta_0 = %.2f$)', n0_min), ...
+       sprintf('High Noise ($\\eta_0 = %.2f$)', n0_max), 'True $c$', ...
        'Interpreter', 'latex', 'Location', 'best');
 grid on;
 
@@ -287,10 +287,11 @@ grid on;
 sgtitle('Exercise 2b: Final Parameter Estimation Error vs Noise Amplitude', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
-%% ===== Summary =====
+%% Summary
 fprintf('===== Summary =====\n');
-fprintf('%-12s %-12s %-12s\n', 'eta0', '|el|', '|ec|');
-fprintf('%s\n', repmat('-', 1, 38));
-for i = 1 : length(n0_values)
-    fprintf('%-12.4f %-12.5f %-12.5f\n', n0_values(i), error_l(i), error_c(i));
-end
+fprintf('Case n0=%.4f: l_hat=%.5f (|e_l|=%.5f), c_hat=%.5f (|e_c|=%.5f)\n', ...
+        0, l_hat(end), abs(l - l_hat(end)), c_hat(end), abs(c - c_hat(end)));
+fprintf('Case n0=%.4f: l_hat=%.5f (|e_l|=%.5f), c_hat=%.5f (|e_c|=%.5f)\n', ...
+        n0_min, l_min(end), abs(l - l_min(end)), c_min(end), abs(c - c_min(end)));
+fprintf('Case n0=%.4f: l_hat=%.5f (|e_l|=%.5f), c_hat=%.5f (|e_c|=%.5f)\n\n', ...
+        n0_max, l_max(end), abs(l - l_max(end)), c_max(end), abs(c - c_max(end)));
