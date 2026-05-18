@@ -1,0 +1,70 @@
+function [theta_hat, x_hat] = basis_estimator( ...
+    t, x, u, phi_func, gamma_vec, K, theta0)
+%   Generic Lyapunov-based estimator for function approximation:
+%       x_dot(t) = theta^T * phi( x(t), u(t) )
+%
+%   The structural form of the system is unknown, so we approximate it as a
+%   linear combination of M user-supplied basis functions phi_1, ..., phi_M.
+%   Setting gamma_vec = 0 freezes the parameters and turns this routine into
+%   a validator that simulates the parallel model with fixed theta — handy
+%   for cross-validation and generalisation testing.
+%
+%   System (estimator's working model):
+%       x_dot = theta^T * phi(x, u)
+%   Series-parallel model:
+%       x_hat_dot = theta_hat^T * phi(x, u) + K * (x - x_hat)
+%   Lyapunov function:
+%       V = 0.5 * (x - x_hat)^2 + 0.5 * theta_tilde^T * Gamma^(-1) * theta_tilde
+%   Update law (gradient of V w.r.t. theta, with sign flip):
+%       theta_hat_dot = Gamma * phi(x, u) * (x - x_hat)
+%
+%   Inputs:
+%     t         - time vector                    [N x 1]
+%     x         - measured state x(t)            [N x 1]
+%     u         - control input u(t)             [N x 1]
+%     phi_func  - basis function handle @(x, u)  [M x 1]
+%     gamma_vec - per-parameter adaptation gains [M x 1]
+%                 (use zeros(M, 1) to freeze parameters for validation)
+%     K         - stabilizing gain (scalar)
+%     theta0    - initial parameter estimate     [M x 1]
+%
+%   Outputs:
+%     theta_hat - parameter history          [N x M]
+%     x_hat     - estimated state trajectory [N x 1]
+
+N = length(t);
+M = length(theta0);
+
+theta_hat = zeros(N, M);
+x_hat = zeros(N, 1);
+
+% Initialise (align parallel model with true initial state)
+theta_hat(1, :) = theta0(:)';
+x_hat(1) = x(1);
+
+% Make sure gamma_vec is a column for element-wise broadcasting
+gamma_vec = gamma_vec(:);
+
+for i = 1 : N - 1
+    dt_i = t(i+1) - t(i);
+
+    % Evaluate basis at current measurements (regressor uses TRUE states)
+    phi_i = phi_func(x(i), u(i));
+    phi_i = phi_i(:);   % ensure column
+
+    % State tracking error (Lyapunov driving signal)
+    e_i = x(i) - x_hat(i);
+
+    % Series-parallel model dynamics
+    theta_i = theta_hat(i, :)';
+    x_hat_dot = theta_i' * phi_i + K * e_i;
+
+    % Euler integration
+    x_hat(i+1) = x_hat(i) + dt_i * x_hat_dot;
+
+    % Lyapunov update law (per-parameter gain)
+    theta_hat(i+1, :) = theta_hat(i, :) ...
+                       + dt_i * ( (gamma_vec .* phi_i) * e_i )';
+end
+
+end
