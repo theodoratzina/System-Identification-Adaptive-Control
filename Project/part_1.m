@@ -27,7 +27,7 @@ else
 end
 
 %% Simulation Settings
-dt = 1e-3;    % integration step
+dt = 1e-3;     % integration step
 t_end = 120;   % simulation duration [s]
 
 %% Estimator Settings
@@ -50,8 +50,8 @@ fprintf('Stabilising gains K = [%.1f; %.1f]\n', K(1), K(2));
 fprintf('Adaptation gains gamma_A = [%.1f; %.1f; %.1f; %.1f]\n', gamma_A);
 fprintf('Adaptation gains gamma_b = [%.1f; %.1f]\n\n', gamma_b);
 
-%% Exercise 1a — No Disturbance
-fprintf('===== Exercise 1a — Lyapunov Estimator, No Disturbance =====\n');
+%% Part 1a — No Disturbance
+fprintf('===== Part 1a — Lyapunov Estimator, No Disturbance =====\n');
 
 % Input signal: sum of three sinusoids for persistent excitation
 % (6 unknown parameters → at least 3 distinct frequencies required)
@@ -118,7 +118,7 @@ else
 end
 
 %% Figure 1: State Tracking
-figure('Name', 'Exercise 1a — State Tracking', ...
+figure('Name', 'Part 1a — State Tracking', ...
        'NumberTitle', 'off', 'Position', [80, 100, 1000, 700]);
 
 subplot(2, 2, 1);
@@ -157,11 +157,11 @@ ylabel('$e_{x_2}(t)$', 'Interpreter', 'latex');
 title('Tracking Error: $e_{x_2}(t) = x_2(t) - \hat{x}_2(t)$', 'Interpreter', 'latex');
 grid on;
 
-sgtitle('Exercise 1a: State Tracking ($d = 0$)', ...
+sgtitle('Part 1a: State Tracking ($d = 0$)', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Figure 2: Parameter Convergence
-figure('Name', 'Exercise 1a — Parameter Convergence', ...
+figure('Name', 'Part 1a — Parameter Convergence', ...
        'NumberTitle', 'off', 'Position', [110, 80, 1000, 700]);
 
 labels_A = {'$\hat{a}_{11}(t)$', '$\hat{a}_{12}(t)$', ...
@@ -189,11 +189,11 @@ for i = 1:2
     grid on;
 end
 
-sgtitle('Exercise 1a: Parameter Convergence ($d = 0$)', ...
+sgtitle('Part 1a: Parameter Convergence ($d = 0$)', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Figure 3: Parameter Errors
-figure('Name', 'Exercise 1a — Parameter Errors', ...
+figure('Name', 'Part 1a — Parameter Errors', ...
        'NumberTitle', 'off', 'Position', [140, 60, 1000, 700]);
 
 err_labels_A = {'$e_{a_{11}}(t)$', '$e_{a_{12}}(t)$', ...
@@ -219,11 +219,11 @@ for i = 1:2
     grid on;
 end
 
-sgtitle('Exercise 1a: Parameter Estimation Errors ($d = 0$)', ...
+sgtitle('Part 1a: Parameter Estimation Errors ($d = 0$)', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
-%% Exercise 1b — With Bias Disturbance
-fprintf('===== Exercise 1b — Projection Estimator, with Disturbance =====\n');
+%%  Part 1b — With Bias Disturbance
+fprintf('===== Part 1b — Projection Estimator, with Disturbance =====\n');
 
 % Parameter box constraints from the assignment statement
 A_lower = [-5;  -0.5;  -0.5;  -5];
@@ -287,7 +287,7 @@ fprintf('  a11: %.5f    a12: %.5f    a21: %.5f    a22: %.5f\n', abs(eA_p(end,:))
 fprintf('  b1:  %.5f    b2:  %.5f\n\n', abs(eb_p(end,1)), abs(eb_p(end,2)));
 
 %% Figure 4: State Tracking with Projection
-figure('Name', 'Exercise 1b — State Tracking', ...
+figure('Name', 'Part 1b — State Tracking', ...
        'NumberTitle', 'off', 'Position', [80, 100, 1000, 700]);
 
 subplot(2, 2, 1);
@@ -326,11 +326,11 @@ ylabel('$e_{x_2}(t)$', 'Interpreter', 'latex');
 title('Tracking Error: $e_{x_2}(t)$', 'Interpreter', 'latex');
 grid on;
 
-sgtitle(sprintf('Exercise 1b: State Tracking with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
+sgtitle(sprintf('Part 1b: State Tracking with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Figure 5: Parameter Convergence with Projection
-figure('Name', 'Exercise 1b — Parameter Convergence', ...
+figure('Name', 'Part 1b — Parameter Convergence', ...
        'NumberTitle', 'off', 'Position', [110, 80, 1000, 700]);
 
 for i = 1:4
@@ -357,11 +357,11 @@ for i = 1:2
     grid on;
 end
 
-sgtitle(sprintf('Exercise 1b: Parameter Convergence with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
+sgtitle(sprintf('Part 1b: Parameter Convergence with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Figure 6: Parameter Errors with Projection
-figure('Name', 'Exercise 1b — Parameter Errors', ...
+figure('Name', 'Part 1b — Parameter Errors', ...
        'NumberTitle', 'off', 'Position', [140, 60, 1000, 700]);
 
 for i = 1:4
@@ -384,11 +384,11 @@ for i = 1:2
     grid on;
 end
 
-sgtitle(sprintf('Exercise 1b: Parameter Errors with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
+sgtitle(sprintf('Part 1b: Parameter Errors with Projection ($\\bar{\\omega} = %.2f$)', w_bar), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Figure 7: Projection vs Plain Lyapunov
-figure('Name', 'Exercise 1b — Projection vs No Projection', ...
+figure('Name', 'Part 1b — Projection vs No Projection', ...
        'NumberTitle', 'off', 'Position', [170, 40, 1000, 700]);
 
 for i = 1:4
@@ -417,13 +417,13 @@ for i = 1:2
     grid on;
 end
 
-sgtitle(sprintf('Exercise 1b: Projection vs Plain Lyapunov ($\\bar{\\omega} = %.2f$)', w_bar), ...
+sgtitle(sprintf('Part 1b: Projection vs Plain Lyapunov ($\\bar{\\omega} = %.2f$)', w_bar), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Sweep over w_bar
 fprintf('\n===== Sweep over w_bar (Projection vs Plain) =====\n');
 
-w_bar_values = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0];
+w_bar_values = [0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0];
 N_sweep = length(w_bar_values);
 
 err_A_proj = zeros(N_sweep, 4);
@@ -472,9 +472,9 @@ for i = 1:N_sweep
             norm(err_A_plain(i,:)), norm(err_b_plain(i,:)), err_x_plain(i));
 end
 
-%% ===== Figure 8: Sweep Plot — Projection vs Plain =====
-figure('Name', 'Exercise 1b — Sweep: Projection vs Plain', ...
-       'NumberTitle', 'off', 'Position', [160, 180, 1000, 900]);
+%% Figure 8: Sweep Plot - Projection vs Plain
+figure('Name', 'Part 1b - Sweep: Projection vs Plain', ...
+       'NumberTitle', 'off', 'Position', [200, 20, 1000, 700]);
  
 % State tracking error
 subplot(3, 1, 1);
@@ -486,7 +486,7 @@ title('Steady-State Tracking Error', 'Interpreter', 'latex');
 legend('Projection', 'Plain Lyapunov', 'Interpreter', 'latex', 'Location', 'best');
 grid on;
  
-% Parameter error norm — A
+% Parameter error norm - A
 subplot(3, 1, 2);
 err_A_proj_norm  = sqrt(sum(err_A_proj.^2, 2));
 err_A_plain_norm = sqrt(sum(err_A_plain.^2, 2));
@@ -494,11 +494,11 @@ loglog(w_bar_values, err_A_proj_norm, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 7);
 loglog(w_bar_values, err_A_plain_norm, 'rs--', 'LineWidth', 1.5, 'MarkerSize', 7);
 xlabel('Disturbance bound $\bar{\omega}$', 'Interpreter', 'latex');
 ylabel('$\| e_A \|_{RMS}$', 'Interpreter', 'latex');
-title('Steady-State Parameter Error — Matrix $A$', 'Interpreter', 'latex');
+title('Steady-State Parameter Error - Matrix $A$', 'Interpreter', 'latex');
 legend('Projection', 'Plain Lyapunov', 'Interpreter', 'latex', 'Location', 'best');
 grid on;
  
-% Parameter error norm — b
+% Parameter error norm - b
 subplot(3, 1, 3);
 err_b_proj_norm  = sqrt(sum(err_b_proj.^2, 2));
 err_b_plain_norm = sqrt(sum(err_b_plain.^2, 2));
@@ -506,16 +506,16 @@ loglog(w_bar_values, err_b_proj_norm, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 7);
 loglog(w_bar_values, err_b_plain_norm, 'rs--', 'LineWidth', 1.5, 'MarkerSize', 7);
 xlabel('Disturbance bound $\bar{\omega}$', 'Interpreter', 'latex');
 ylabel('$\| e_b \|_{RMS}$', 'Interpreter', 'latex');
-title('Steady-State Parameter Error — Vector $b$', 'Interpreter', 'latex');
+title('Steady-State Parameter Error - Vector $b$', 'Interpreter', 'latex');
 legend('Projection', 'Plain Lyapunov', 'Interpreter', 'latex', 'Location', 'best');
 grid on;
  
-sgtitle('Exercise 1b: Estimation Error vs $\bar{\omega}$ — Projection vs Plain Lyapunov', ...
+sgtitle('Part 1b: Estimation Error vs $\bar{\omega}$ - Projection vs Plain Lyapunov', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
  
-%% ===== Figure 9: Per-Parameter RMS Error Breakdown =====
-figure('Name', 'Exercise 1b — Per-parameter RMS error vs omega_bar', ...
-       'NumberTitle', 'off', 'Position', [200, 20, 1000, 700]);
+%% Figure 9: Per-Parameter RMS Error Breakdown
+figure('Name', 'Part 1b - Per-parameter RMS error vs w_bar', ...
+       'NumberTitle', 'off', 'Position', [230, 0, 1000, 700]);
  
 subplot(2, 1, 1);
 loglog(w_bar_values, err_A_proj(:,1), 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6); hold on;
@@ -531,14 +531,14 @@ grid on;
  
 subplot(2, 1, 2);
 loglog(w_bar_values, err_b_proj(:,1), 'cv-', 'LineWidth', 1.5, 'MarkerSize', 6); hold on;
-loglog(w_bar_values, err_b_proj(:,2), 'kp-', 'LineWidth', 1.5, 'MarkerSize', 6);
+loglog(w_bar_values, err_b_proj(:,2), 'p-', 'Color', [0.8500, 0.3250, 0.0980], 'LineWidth', 1.5, 'MarkerSize', 6);
 xlabel('Disturbance bound $\bar{\omega}$', 'Interpreter', 'latex');
 ylabel('Steady-state RMS error', 'Interpreter', 'latex');
 title('Per-element error of $b$ (Projection)', 'Interpreter', 'latex');
 legend('$|e_{b_1}|$', '$|e_{b_2}|$', 'Interpreter', 'latex', 'Location', 'best');
 grid on;
  
-sgtitle('Exercise 1b: Parameter RMS Error Breakdown', ...
+sgtitle('Part 1b: Parameter RMS Error Breakdown', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 fprintf('\n===== Part 1 Complete =====\n');

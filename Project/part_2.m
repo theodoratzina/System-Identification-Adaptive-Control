@@ -52,7 +52,7 @@ fprintf('  Validation: x in [%+.2f, %+.2f]\n', min(x_val), max(x_val));
 fprintf('  Test:       x in [%+.2f, %+.2f]\n\n', min(x_test), max(x_test));
 
 %% Figure 1: Dataset Overview
-figure('Name', 'Exercise 2 - Dataset Overview', ...
+figure('Name', 'Part 2a - Dataset Overview', ...
        'NumberTitle', 'off', 'Position', [80, 100, 1200, 700]);
 
 subplot(2, 3, 1);
@@ -97,7 +97,7 @@ ylabel('$u_{test}(t)$', 'Interpreter', 'latex');
 title('Test Input', 'Interpreter', 'latex');
 grid on;
 
-sgtitle('Exercise 2: Training / Validation / Test Datasets', ...
+sgtitle('Part 2a: Training / Validation / Test Datasets', ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Exercise 2a — Structure Selection & Cross-Validation
@@ -105,8 +105,7 @@ sgtitle('Exercise 2: Training / Validation / Test Datasets', ...
 K = 10;
 
 % Each model: name, basis function handle phi(x,u), initial parameter
-% estimate, and per-parameter adaptation gain vector. Gains are individually
-% scaled to compensate for the very different amplitude ranges of the bases
+% estimate, and per-parameter adaptation gain vector.
 M1 = struct( ...
     'name',   'M1: Linear', ...
     'phi',    @(x,u) [x; u], ...
@@ -141,20 +140,18 @@ for j = 1:N_models
 end
 fprintf('\n');
 
-%% Train Each Model + Cross-Validate + Test
+%% Train Each Model + Cross-Validate
 results = struct( ...
     'theta_final', cell(N_models, 1), ...
     'x_hat_train', cell(N_models, 1), ...
     'x_sim_val',   cell(N_models, 1), ...
     'x_sim_test',  cell(N_models, 1), ...
-    'K_train',     cell(N_models, 1), ...
-    'K_val',       cell(N_models, 1), ...
-    'K_test',      cell(N_models, 1) );
+    'K_train',     cell(N_models, 1) );
 
 fprintf('===== Training and Cross-Validation =====\n');
-fprintf('%-28s %-4s %-12s %-12s %-12s\n', ...
-        'Model', 'M', 'K_train', 'K_val', 'K_test');
-fprintf('%s\n', repmat('-', 1, 72));
+fprintf('%-28s %-4s %-12s %-12s\n', ...
+        'Model', 'M', 'K_train', 'K_val');
+fprintf('%s\n', repmat('-', 1, 60));
 
 for j = 1:N_models
     Mj = models{j};
@@ -171,24 +168,63 @@ for j = 1:N_models
     results(j).x_sim_val = x_sim_val;
     results(j).K_val = trapz(t_val, (x_val - x_sim_val).^2);
 
-    % 3. Test (generalisation)
-    x_sim_test = pure_simulate(t_test, u_test, Mj.phi, results(j).theta_final, x_test(1));
-    results(j).x_sim_test = x_sim_test;
-    results(j).K_test = trapz(t_test, (x_test - x_sim_test).^2);
-
-    fprintf('%-28s %-4d %-12.4f %-12.4f %-12.4f\n', ...
+    fprintf('%-28s %-4d %-12.4f %-12.4f\n', ...
             Mj.name, length(Mj.theta0), ...
-            results(j).K_train, results(j).K_val, results(j).K_test);
+            results(j).K_train, results(j).K_val);
 end
 fprintf('\n');
 
-%% Exercise 2b - Final Model Selection & Generalisation Test
 % Minimisation of modelling error K vs complexity
 K_train_arr = [results.K_train];
 K_val_arr = [results.K_val];
-K_test_arr = [results.K_test];
 M_arr = arrayfun(@(j) length(models{j}.theta0), 1:N_models);
 
+%% Figure 2: Cross-Validation Performance
+figure('Name', 'Part 2a - Cross-Validation Performance', ...
+       'NumberTitle', 'off', 'Position', [80, 80, 900, 600]);
+
+bar_data = [K_train_arr; K_val_arr]';
+b_h = bar(bar_data);
+set(gca, 'YScale', 'log');
+set(gca, 'XTickLabel', arrayfun(@(j) models{j}.name, 1:N_models, ...
+        'UniformOutput', false));
+xtickangle(15);
+ylabel('Modelling error $K = \int(x-\hat{x})^2\,dt$', 'Interpreter', 'latex');
+title('Part 2a: Cross-Validation Performance (log scale)', 'Interpreter', 'latex');
+legend('$K_{train}$', '$K_{val}$', ...
+       'Interpreter', 'latex', 'Location', 'best');
+grid on;
+
+% Annotate each model with its parameter count
+y_top = max(K_val_arr) * 3;
+for j = 1:N_models
+    text(j, y_top, sprintf('M = %d', M_arr(j)), ...
+         'HorizontalAlignment', 'center', 'FontSize', 10, ...
+         'FontWeight', 'bold');
+end
+ylim([min(K_train_arr)/2, y_top*2]);
+
+%% Figure 3: Validation Tracking per Candidate Model
+figure('Name', 'Part 2a - Validation Tracking', ...
+       'NumberTitle', 'off', 'Position', [100, 60, 1100, 700]);
+
+for j = 1:N_models
+    subplot(2, 2, j);
+    plot(t_val, x_val, 'b', 'LineWidth', 1.5); hold on;
+    plot(t_val, results(j).x_sim_val, 'r--', 'LineWidth', 1.5);
+    xlabel('Time $t$ [s]', 'Interpreter', 'latex');
+    ylabel('$x(t)$', 'Interpreter', 'latex');
+    title(sprintf('%s ($K_{val} = %.3f$)', models{j}.name, results(j).K_val), ...
+          'Interpreter', 'latex');
+    legend('True $x$', 'Model $\hat{x}$', ...
+           'Interpreter', 'latex', 'Location', 'best');
+    grid on;
+end
+
+sgtitle('Part 2a: Pure-Simulation Tracking per Candidate Model', ...
+        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
+
+%% Exercise 2b - Final Model Selection & Generalisation Test
 % Pick lowest validation error first
 [K_val_min, best_idx] = min(K_val_arr);
 fprintf('===== Model Selection =====\n');
@@ -213,65 +249,36 @@ else
 end
 fprintf('\n');
 
-%% Figure 2: Cross-Validation Performance
-figure('Name', 'Exercise 2 - Cross-Validation Performance', ...
-       'NumberTitle', 'off', 'Position', [80, 80, 900, 600]);
+% 3. Test (generalisation)
+fprintf('===== Generalisation Test (Test Dataset) =====\n');
+final_model = models{final_idx};
+x_sim_test = pure_simulate(t_test, u_test, final_model.phi, results(final_idx).theta_final, x_test(1));
+K_test_final = trapz(t_test, (x_test - x_sim_test).^2);
 
-bar_data = [K_train_arr; K_val_arr; K_test_arr]';
-b_h = bar(bar_data);
-set(gca, 'YScale', 'log');
-set(gca, 'XTickLabel', arrayfun(@(j) models{j}.name, 1:N_models, ...
-        'UniformOutput', false));
-xtickangle(15);
-ylabel('Modelling error $K = \int(x-\hat{x})^2\,dt$', 'Interpreter', 'latex');
-title('Exercise 2: Cross-Validation Performance (log scale)', 'Interpreter', 'latex');
-legend('$K_{train}$', '$K_{val}$', '$K_{test}$', ...
-       'Interpreter', 'latex', 'Location', 'best');
-grid on;
-
-% Annotate each model with its parameter count
-y_top = max(K_test_arr) * 3;
-for j = 1:N_models
-    text(j, y_top, sprintf('M = %d', M_arr(j)), ...
-         'HorizontalAlignment', 'center', 'FontSize', 10, ...
-         'FontWeight', 'bold');
-end
-ylim([min(K_train_arr)/2, y_top*2]);
-
-%% Figure 3: Validation Tracking per Candidate Model
-figure('Name', 'Exercise 2 - Validation Tracking', ...
-       'NumberTitle', 'off', 'Position', [100, 60, 1100, 700]);
-
-for j = 1:N_models
-    subplot(2, 2, j);
-    plot(t_val, x_val, 'b', 'LineWidth', 1.5); hold on;
-    plot(t_val, results(j).x_sim_val, 'r--', 'LineWidth', 1.5);
-    xlabel('Time $t$ [s]', 'Interpreter', 'latex');
-    ylabel('$x(t)$', 'Interpreter', 'latex');
-    title(sprintf('%s ($K_{val} = %.3f$)', models{j}.name, results(j).K_val), ...
-          'Interpreter', 'latex');
-    legend('True $x$', 'Model $\hat{x}$', ...
-           'Interpreter', 'latex', 'Location', 'best');
-    grid on;
-end
-
-sgtitle('Exercise 2: Pure-Simulation Tracking per Candidate Model', ...
-        'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
+fprintf('Evaluating %s on strictly unseen Test Data...\n', final_model.name);
+fprintf('K_test = %.4f\n\n', K_test_final);
 
 %% Figure 4: Final Model Estimated Parameters
 final_theta = results(final_idx).theta_final;
 final_M = length(final_theta);
 
-figure('Name', 'Exercise 2 - Final Model Parameters', ...
+figure('Name', 'Part 2b - Final Model Parameters', ...
        'NumberTitle', 'off', 'Position', [120, 40, 800, 500]);
 
 bar(1:final_M, final_theta, 'FaceColor', [0.2, 0.4, 0.8]);
 xlabel('Basis function index $i$', 'Interpreter', 'latex');
 ylabel('$\hat{\theta}_i$', 'Interpreter', 'latex');
-title(sprintf('Exercise 2: Final Estimated Parameters - %s', models{final_idx}.name), ...
+title(sprintf('Part 2b: Final Estimated Parameters - %s', models{final_idx}.name), ...
       'Interpreter', 'latex');
 grid on;
 xticks(1:final_M);
+
+max_abs_val = max(abs(final_theta));
+padding = 0.15 * max_abs_val; 
+if padding == 0; padding = 0.1; end
+y_lower = min([0, min(final_theta)]) - padding;
+y_upper = max([0, max(final_theta)]) + padding;
+ylim([y_lower, y_upper]);
 
 % Display values above each bar
 for i = 1:final_M
@@ -282,30 +289,29 @@ for i = 1:final_M
 end
 
 %% Figure 5: Generalisation Test of Final Model
-figure('Name', 'Exercise 2 - Generalisation Test', ...
+figure('Name', 'Part 2b - Generalisation Test', ...
        'NumberTitle', 'off', 'Position', [140, 20, 1000, 700]);
 
 subplot(2, 1, 1);
 plot(t_test, x_test, 'b', 'LineWidth', 1.5); hold on;
-plot(t_test, results(final_idx).x_sim_test, 'r--', 'LineWidth', 1.5);
+plot(t_test, x_sim_test, 'r--', 'LineWidth', 1.5);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('$x(t)$', 'Interpreter', 'latex');
-title(sprintf('Final model %s on TEST data ($K_{test} = %.3f$)', ...
-              models{final_idx}.name, results(final_idx).K_test), ...
-      'Interpreter', 'latex');
+title(sprintf('Final model %s on strictly unseen TEST data ($K_{test} = %.3f$)', ...
+              models{final_idx}.name, K_test_final), 'Interpreter', 'latex');
 legend('True $x_{test}$', 'Model $\hat{x}_{test}$', ...
        'Interpreter', 'latex', 'Location', 'best');
 grid on;
 
 subplot(2, 1, 2);
-plot(t_test, x_test - results(final_idx).x_sim_test, 'm', 'LineWidth', 1.5);
+plot(t_test, x_test - x_sim_test, 'm', 'LineWidth', 1.5);
 yline(0, 'k--', 'LineWidth', 0.8);
 xlabel('Time $t$ [s]', 'Interpreter', 'latex');
 ylabel('Generalisation error $e(t)$', 'Interpreter', 'latex');
 title('Tracking Error on Test Data', 'Interpreter', 'latex');
 grid on;
 
-sgtitle(sprintf('Exercise 2: Generalisation Test: Final Model = %s', models{final_idx}.name), ...
+sgtitle(sprintf('Part 2b: Generalisation Test: Final Model = %s', models{final_idx}.name), ...
         'FontSize', 13, 'FontWeight', 'bold', 'Interpreter', 'latex');
 
 %% Summary
@@ -314,9 +320,9 @@ fprintf('Selected model: %s (M = %d parameters)\n', ...
         models{final_idx}.name, M_arr(final_idx));
 fprintf('  K_train = %.4f\n', results(final_idx).K_train);
 fprintf('  K_val   = %.4f\n', results(final_idx).K_val);
-fprintf('  K_test  = %.4f\n', results(final_idx).K_test);
+fprintf('  K_test  = %.4f\n', K_test_final);
 
-gen_ratio = results(final_idx).K_test / results(final_idx).K_val;
+gen_ratio = K_test_final / results(final_idx).K_val;
 fprintf('  K_test / K_val = %.3f', gen_ratio);
 if gen_ratio < 1.5
     fprintf('  (good generalisation)\n');
